@@ -1,0 +1,6 @@
+--- 
+title: A Language classifier using Naive Bayes
+subtitle: Identify the language of a text using the ultra speed of a Naive Bayes classifier. 
+--- 
+
+This package requires [Quanteda::stopwords](https://github.com/quanteda/stopwords) (For more details, check [link](https://stopwords.quanteda.io/reference/index.html)).

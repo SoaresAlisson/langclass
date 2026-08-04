@@ -1,0 +1,72 @@
+Builing an R package to classify texts into their language using Naive Bayes and stopwords. There is a sample code in dev/dev.qmd. You will list all languages available in stopwords package and use it to classify texts into different languages. Create the functions, testes and vignettes.
+
+details, function references; https://stopwords.quanteda.io/reference/index.html
+
+```{r exemaples languages}
+en <- stopwords::stopwords(language = "en", source = "marimo")
+pt <- stopwords::stopwords(language = "pt")
+es <- stopwords::stopwords(language = "es")
+de <- stopwords::stopwords(language = "de")
+fr <- stopwords::stopwords(language = "fr")
+it <- stopwords::stopwords(language = "it")
+
+langs <- c(de, en, es, fr, it, pt)
+langnames <- c("de", "en", "es", "fr", "it", "pt")
+names(langs) <- langnames
+langnames[1]
+```
+
+Treinando o modelo NB
+```{r train}
+dfm_ <- langs  |> quanteda::tokens() |> quanteda::dfm(, tolower = TRUE)
+trainingset <- dfm_
+trainingclass <- langnames
+# trainingclass <- factor(c("p", "p", "p", "n", "n", na), ordered = true)
+tmod <- quanteda.textmodels::textmodel_nb(trainingset, y = trainingclass, 
+  prior = c("uniform", "docfreq", "termfreq")[1])
+
+predict(tmod)
+# predict(tmod, type = "logposterior")
+coef(tmod) |> head() # estimated feature scores:
+```
+
+```{r fun which_lang}
+which_lang <- function(new_text) {
+  # new_text <- "Olá pessoal, meu nome é João"
+  # Process the new text
+  dfm_new <- new_text |>
+    tolower() |>
+    quanteda::tokens() |>
+    quanteda::dfm()
+  
+  # Align the features with the training set
+  dfm_new_aligned <- quanteda::dfm_match(dfm_new, features = quanteda::featnames(trainingset))
+  
+  # Return predictions
+  pred <- predict(tmod, newdata = dfm_new_aligned, type = c("class", "probability", "logposterior")[2])
+  lang_names <- colnames(pred)
+  DF <- data.frame(lang = lang_names, 
+    prob=t(pred) |> unname()) |> dplyr::arrange(-prob)
+  lang_prob <- DF[1,"prob"]
+  max_value <- 0.1666667
+  if (lang_prob > max_value){
+    # return(c(DF[1,1], lang_prob))
+    return(DF)
+  } else {
+    message("Language not found")
+  }
+}
+```
+
+Testing
+```{r which_lang}
+which_lang("Hallo Leute, mein Name ist Johanes")
+which_lang("Hello everyone, my name is John")
+which_lang("Hola a todos, mi nombre es João")
+which_lang("Bonjour tout le monde, mon nom est João")
+which_lang("Ciao a tutti, il mio nome è João")
+which_lang("Olá pessoal, meu nome é João")
+
+which_lang("xwa asd lorem ispum")
+which_lang("123")
+```
