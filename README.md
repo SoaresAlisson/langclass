@@ -1,7 +1,6 @@
---- 
-title: langClass package
-format: gfm
----
+# langClass package
+
+
 # langclass
 
 ## A Language classifier using Naive Bayes
@@ -9,22 +8,23 @@ format: gfm
 Identify the language of a text using the ultra speed of a Naive Bayes
 classifier.
 
-This package uses [Quanteda::stopwords](https://github.com/quanteda/stopwords)
-(see the [documentation](https://stopwords.quanteda.io/reference/index.html))
-to train a Naive Bayes classifier over stopword lists for all languages
-available in the `stopwords` package, then classifies new texts into one of
-those languages.
+This package uses
+[Quanteda::stopwords](https://github.com/quanteda/stopwords) (see the
+[documentation](https://stopwords.quanteda.io/reference/index.html)) to
+train a Naive Bayes classifier over stopword lists for all languages
+available in the `stopwords` package, then classifies new texts into one
+of those languages.
 
 ## Installation
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("alisson-souza/langclass")
 ```
 
 ## Usage
 
-```r
+``` r
 library(langclass)
 
 available_languages()
@@ -44,5 +44,5 @@ classify_text("Bonjour tout le monde, mon nom est Anne", model = model)
 - `available_languages()`: list all languages covered by the package.
 - `build_classifier()`: (re)build a Naive Bayes classifier from the
   stopword lists.
-- `classify_text()`: classify one or more texts into a language, returning
-  the best match (and optionally the full probability table).
+- `classify_text()`: classify one or more texts into a language,
+  returning the best match (and optionally the full probability table).

@@ -1,0 +1,35 @@
+Package: langclass
+Type: Package
+Title: Language Classification with Naive Bayes and Stopwords
+Version: 0.1.0
+Authors@R: 
+    person("Alisson", "Soares", 
+    email="soares.alisson@yahoo.com.br", 
+    role = c("aut", "cre"), 
+    comment = c(ORCID = "0009-0004-5497-5572" ) )
+Maintainer: Alisson Soares <soares.alisson@yahoo.com.br>
+fescription: A fast language classifier built on top of the 'stopwords'
+    package. It trains a Naive Bayes model using stopword lists for dozens
+    of languages and can identify the language of a text or a vector of
+    texts. A pre-trained classifier covering all languages available in the
+    'stopwords' package is shipped with the package, so classification works
+    out of the box.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)
+Imports:
+    quanteda,
+    quanteda.textmodels,
+    stopwords,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    spelling
+Config/testthat/edition: 3
+Config/testthat/parallel: true
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

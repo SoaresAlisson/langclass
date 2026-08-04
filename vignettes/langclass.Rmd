@@ -1,0 +1,132 @@
+---
+title: "Classifying texts by language with Naive Bayes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Classifying texts by language with Naive Bayes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-"
+)
+```
+
+`langclass` identifies the language of a text using a Naive Bayes classifier
+trained on the stopword lists provided by the
+[`stopwords`](https://github.com/quanteda/stopwords) package. Because a
+language's stopwords are highly characteristic of that language, a classifier
+built over them is fast and accurate for common languages, and it ships with
+the package so you can classify texts with no extra setup.
+
+## The classifier
+
+The model is trained as follows:
+
+1. For every language code reported by `available_languages()`, we fetch that
+   language's stopword list.
+2. Each list becomes a "document" whose class label is the language code.
+3. A Naive Bayes model is fitted with
+   `quanteda.textmodels::textmodel_nb()` using a uniform prior.
+
+To classify a new text, it is tokenized and lower-cased, aligned to the
+features seen during training, and the posterior probability of each language
+is computed.
+
+## Listing the available languages
+
+```{r}
+library(langclass)
+
+# All languages covered by the default classifier
+langs <- available_languages()
+head(langs)
+length(langs)
+```
+
+By default we use the `stopwords-iso` source, which has the widest coverage.
+You can ask for a different source:
+
+```{r}
+available_languages(source = "snowball")
+```
+
+## Classifying a single text
+
+```{r}
+classify_text("Olá pessoal, meu nome é João")
+```
+
+The result is a named character vector with the most likely language code.
+
+## Classifying many texts
+
+`classify_text()` is vectorised, so you can pass many texts at once:
+
+```{r}
+texts <- c(
+  "Hello everyone, my name is John",
+  "Hallo zusammen, ich bin der Lukas",
+  "Hola a todos, soy Lucía",
+  "Bonjour tout le mon, je m'appelle Louise",
+  "Ciao a tutti, mi chiamo Sofia"
+)
+
+classify_text(texts)
+```
+
+## Getting the full probability table
+
+Pass `details = TRUE` to obtain the posterior probability for every language,
+plus a `label` and `probability` column:
+
+```{r}
+probs <- classify_text("Bonjour tout le mon, je m'appelle Louise",
+                       details = TRUE)
+probs[, c("label", "probability", "fr", "it", "pt")]
+```
+
+## Handling low-confidence predictions
+
+Some texts (numbers, nonsense, very short strings) contain almost no stopword
+signal and will score close to the uniform prior. Set `threshold` to return
+`NA` for any text whose best probability falls below it:
+
+```{r}
+classify_text("123", threshold = 0.05)
+classify_text("xwa asd lorem ipsum", threshold = 0.05)
+classify_text("Hello everyone, my name is John", threshold = 0.05)
+```
+
+## Building your own classifier
+
+The package ships a pre-trained model covering all `stopwords-iso` languages,
+which is what `classify_text()` uses by default. You can also build a model
+yourself — for example, restricting to a single source such as `snowball` —
+and pass it explicitly:
+
+```{r}
+model <- build_classifier(source = "snowball")
+classify_text("Hallo Leute, mein Name ist Johannes", model = model)
+```
+
+## How it works
+
+The key idea is that each language contributes exactly one training document
+containing its stopwords. Consider the German and English lists: they overlap
+in a handful of words but differ sharply in the rest (`und`, `der`, `ich`,
+`nicht` vs. `the`, `and`, `you`, `not`). The Naive Bayes classifier learns
+these contrasts, so a text dense in German stopwords strongly favours German.
+
+The resulting model is small (about 80 KB) because it only tracks the
+presence of stopword features per language, which is why `langclass` can
+ship it inside the package and classify instantly.
+
+## Where to go next
+
+- `?build_classifier` — train a model from any `stopwords` source.
+- `?available_languages` — list languages for a given source.
+- `?classify_text` — full reference for the classification function.

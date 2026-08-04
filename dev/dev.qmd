@@ -1,4 +1,3 @@
-Builing an R package to classify texts into their language using Naive Bayes and stopwords. There is a sample code in dev/dev.qmd. You will list all languages available in stopwords package and use it to classify texts into different languages. Create the functions, testes and vignettes.
 
 details, function references; https://stopwords.quanteda.io/reference/index.html
 
