@@ -33,6 +33,11 @@ build_classifier <- function(source = "stopwords-iso",
     lapply(langs, function(l) stopwords::stopwords(l, source = source)),
     langs
   )
+  # Normalize to NFC so the model's features match what quanteda::tokens()
+  # emits when classifying new text. stopwords() returns some entries in NFD
+  # (e.g. certain Arabic ones), which would otherwise make the newdata
+  # feature set non-conformant during prediction.
+  stopword_lists <- lapply(stopword_lists, stringi::stri_trans_nfc)
 
   dfm_ <- quanteda::dfm(
     quanteda::tokens(stopword_lists),

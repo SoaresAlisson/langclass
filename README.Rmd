@@ -19,12 +19,12 @@ those languages.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("alisson-souza/langclass")
+remotes::install_github("SoaresAlisson/langclass")
 ```
 
 ## Usage
 
-```r
+```{r ex}
 library(langclass)
 
 available_languages()
@@ -33,8 +33,11 @@ available_languages()
 classify_text("Olá pessoal, meu nome é João")
 classify_text(c("Hello everyone, my name is John",
                 "Ciao a tutti, il mio nome è Marco"))
+```
 
-# Or build your own classifier and use it
+Or build your own classifier and use it
+```{r build_classifier}
+#| eval: false
 model <- build_classifier()
 classify_text("Bonjour tout le monde, mon nom est Anne", model = model)
 ```
