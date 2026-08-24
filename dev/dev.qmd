@@ -1,4 +1,9 @@
 
+```{r }
+devtools::build_readme() # locates your README.Rmd and builds it into a README.md
+
+```
+
 details, function references; https://stopwords.quanteda.io/reference/index.html
 
 ```{r exemaples languages}

@@ -125,6 +125,54 @@ The resulting model is small (about 80 KB) because it only tracks the
 presence of stopword features per language, which is why `langclass` can
 ship it inside the package and classify instantly.
 
+## Limitations
+
+`langclass` is a fast heuristic, not a production-grade detector. The model
+is trained on stopword lists alone — one small "document" per language —
+and content words are ignored during classification, so it has real limits:
+
+- **It only sees stopwords.** Texts with few or no stopwords carry almost
+  no signal, and the prediction is essentially arbitrary (ties go to the
+  alphabetically first language):
+
+  ```{r}
+  classify_text(c("Python programming", "John Smith"))
+  ```
+
+- **Short texts are unreliable.** The fewer stopwords, the closer every
+  language scores to the uniform prior (1/57 ≈ 0.018), so single words and
+  greetings are effectively random guesses.
+
+- **Closely related languages are confused.** Portuguese/Spanish,
+  Danish/Norwegian/Swedish and Czech/Slovak share many stopwords; the
+  winner is often right but with low confidence, with sibling languages
+  close behind.
+
+- **Unknown languages are forced into a known one.** A text in a language
+  missing from the `stopwords` source (e.g. Icelandic or Amharic) gets an
+  arbitrary label at near-uniform probability:
+
+  ```{r}
+  classify_text(c("Ég heiti Jón og ég bý í Reykjavík",  # Icelandic, not covered
+                  "ሰላም እንዴት ነህ ስሜ አሊሰን ነው"))       # Amharic, not covered
+  ```
+
+- **Mixed-language texts get a single label**, usually the language
+  contributing the most stopwords.
+
+- **Script and spelling matter.** Stopwords are matched in their native
+  script, and text is lowercased but not diacritic-folded, so
+  transliterated or accented variants may not match.
+
+- **Probabilities are not calibrated.** The posterior probabilities rank
+  the candidates but do not measure real-world accuracy; use `threshold`
+  as a coarse safety valve (see [Handling low-confidence
+  predictions](#handling-low-confidence-predictions)).
+
+For robust, production-grade detection, consider dedicated tools such as
+[fastText](https://fasttext.cc/), [CLD3](https://github.com/google/cld3) or
+[langdetect](https://pypi.org/project/langdetect/).
+
 ## Where to go next
 
 - `?build_classifier` — train a model from any `stopwords` source.
